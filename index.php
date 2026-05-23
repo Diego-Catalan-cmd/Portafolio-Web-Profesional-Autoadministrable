@@ -68,19 +68,11 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($bio['nombre_completo']); ?> | Portafolio</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background-color: #f8f9fa; }
-        .hero-section { padding: 80px 0; background: #ffffff; border-bottom: 1px solid #eee; }
-        .hero-img { width: 250px; height: 250px; object-fit: cover; border-radius: 50%; background-color: #e9ecef; }
-        .section-title { font-weight: bold; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .skill-card { text-align: center; padding: 20px; background: white; border-radius: 10px; border: 1px solid #eee; transition: 0.3s; }
-        .skill-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .skill-icon { font-size: 3rem; margin-bottom: 15px; color: #0d6efd; }
-        .project-card { border: none; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .project-img { height: 200px; object-fit: cover; background: #e9ecef; display: flex; align-items: center; justify-content: center;}
-    </style>
+    
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
@@ -250,7 +242,7 @@ try {
             </div>
             <p class="text-muted small mb-0 fw-bold">Pie de página con las redes sociales y correo del desarrollador</p>
             <p class="text-muted small mb-2">Horario de atención y en el caso de tener marca personal se debe incorporar el logo.</p>
-            <p class="fw-bold text-dark mb-0">&copy; 2026 MiMarca</p>
+            <p class="fw-bold text-dark mb-0">&copy; <?php echo date("Y"); ?> MiMarca</p>
         </div>
     </footer>
 

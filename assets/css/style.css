@@ -1,0 +1,178 @@
+/* ==========================================
+   VARIABLES GLOBALES
+   ========================================== */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --bg-light: #f8f9fa;
+    --text-dark: #212529;
+    --transition-speed: 0.3s;
+}
+
+/* ==========================================
+   ESTILOS GENERALES
+   ========================================== */
+body {
+    background-color: var(--bg-light);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+    /* Desplazamiento suave al hacer clic en el menú */
+    scroll-behavior: smooth; 
+}
+
+/* ==========================================
+   BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================== */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    line-height: 1.2;
+}
+
+/* ==========================================
+   SECCIÓN HERO / BIOGRAFÍA
+   ========================================== */
+.hero-section {
+    padding: 100px 0;
+    background: #ffffff;
+    border-bottom: 1px solid #eee;
+}
+
+.hero-img {
+    width: 280px;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 5px solid white;
+    transition: transform var(--transition-speed);
+}
+
+/* Efecto al pasar el cursor sobre tu foto */
+.hero-img:hover {
+    transform: scale(1.03);
+}
+
+.section-title {
+    font-weight: 800;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+/* ==========================================
+   TARJETAS DE HABILIDADES (ICONOS)
+   ========================================== */
+.skill-card {
+    text-align: center;
+    padding: 25px 20px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all var(--transition-speed) ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+/* Efecto de elevación al hacer hover */
+.skill-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(13, 110, 253, 0.1);
+    border-color: rgba(13, 110, 253, 0.2);
+}
+
+.skill-icon {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    transition: transform var(--transition-speed);
+}
+
+.skill-card:hover .skill-icon {
+    transform: scale(1.1);
+}
+
+/* ==========================================
+   TARJETAS DE PROYECTOS
+   ========================================== */
+.project-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all var(--transition-speed) ease;
+    background: white;
+}
+
+.project-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+.project-img {
+    height: 220px;
+    object-fit: cover;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* ==========================================
+   BARRAS DE PROGRESO (TECNOLOGÍAS)
+   ========================================== */
+.progress {
+    background-color: #e9ecef;
+    border-radius: 50rem;
+}
+
+.progress-bar {
+    border-radius: 50rem;
+    position: relative;
+    /* Animación de carga para las barras */
+    animation: animateProgress 1.5s ease-in-out forwards;
+}
+
+@keyframes animateProgress {
+    from { width: 0; }
+}
+
+/* ==========================================
+   FORMULARIO DE CONTACTO
+   ========================================== */
+.form-control {
+    border-radius: 8px;
+    padding: 12px 15px;
+    transition: all var(--transition-speed);
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    background-color: white !important;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+footer {
+    background: white;
+    border-top: 1px solid #eaeaea;
+}
+
+footer a {
+    display: inline-block;
+    transition: all var(--transition-speed);
+}
+
+footer a:hover {
+    color: var(--primary-color) !important;
+    transform: scale(1.15);
+}
