@@ -1,115 +1,106 @@
 <?php
 // ==========================================
-// 1. BACKEND: CONEXIÓN Y PROCESAMIENTO
+// 1. CONEXIÓN A LA BASE DE DATOS
 // ==========================================
 require_once 'conexion.php';
 
-// Variable para manejar estados del formulario (Éxito o Error)
-$mensaje_estado = "";
+$alerta_contacto = "";
 
-// Procesar el formulario de contacto si se envía por POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitizar entradas para evitar ataques XSS básicas
+// ==========================================
+// 2. PROCESAR FORMULARIO DE CONTACTO
+// ==========================================
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['enviar_mensaje'])) {
     $nombre = strip_tags(trim($_POST['nombre']));
     $correo = filter_var(trim($_POST['correo']), FILTER_SANITIZE_EMAIL);
     $asunto = strip_tags(trim($_POST['asunto']));
     $mensaje = strip_tags(trim($_POST['mensaje']));
 
-    // Validar campos obligatorios y formato de correo
-    if (!empty($nombre) && !empty($correo) && !empty($asunto) && !empty($mensaje) && filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+    if (!empty($nombre) && filter_var($correo, FILTER_VALIDATE_EMAIL) && !empty($asunto) && !empty($mensaje)) {
         try {
-            // Consulta preparada con marcadores de posición para evitar Inyección SQL (Buenas Prácticas)
-            $sql = "INSERT INTO mensajes (nombre, correo, asunto, mensaje) VALUES (:nombre, :correo, :asunto, :mensaje)";
-            $stmt = $conexion->prepare($sql);
-            
-            // Ejecutar pasando el arreglo asociativo seguro
+            $stmt = $conexion->prepare("INSERT INTO mensajes (nombre, correo, asunto, mensaje) VALUES (:nombre, :correo, :asunto, :mensaje)");
             $stmt->execute([
                 ':nombre' => $nombre,
                 ':correo' => $correo,
                 ':asunto' => $asunto,
                 ':mensaje' => $mensaje
             ]);
-
-            $mensaje_estado = "<div class='alert alert-success border-0 shadow-sm rounded-pill text-center mb-4'><i class='fa-regular fa-circle-check me-2'></i>¡Mensaje enviado con éxito! Se ha guardado en la base de datos.</div>";
+            $alerta_contacto = "<div class='alert alert-success'>¡Mensaje enviado con éxito! Te responderé pronto.</div>";
         } catch (PDOException $e) {
-            $mensaje_estado = "<div class='alert alert-danger border-0 shadow-sm rounded-pill text-center mb-4'><i class='fa-solid fa-circle-exclamation me-2'></i>Error en el servidor al enviar el mensaje.</div>";
+            $alerta_contacto = "<div class='alert alert-danger'>Error al enviar el mensaje. Intenta nuevamente.</div>";
         }
     } else {
-        $mensaje_estado = "<div class='alert alert-warning border-0 shadow-sm rounded-pill text-center mb-4'><i class='fa-solid fa-triangle-exclamation me-2'></i>Por favor, rellena todos los campos con un correo válido.</div>";
+        $alerta_contacto = "<div class='alert alert-warning'>Por favor, completa todos los campos con información válida.</div>";
     }
 }
 
-// Obtener datos dinámicos desde MySQL usando consultas PDO robustas
+// ==========================================
+// 3. CONSULTAS PARA OBTENER LOS DATOS (READ)
+// ==========================================
 try {
-    // 1. Biografía
+    // Obtener Biografía
     $stmtBio = $conexion->query("SELECT * FROM biografia LIMIT 1");
-    $biografia = $stmtBio->fetch();
+    $bio = $stmtBio->fetch(PDO::FETCH_ASSOC);
+    if (!$bio) {
+        // Valores por defecto si la base de datos está vacía
+        $bio = ['nombre_completo' => 'Tu Nombre', 'titulo_profesional' => 'Desarrollador Web', 'descripcion' => 'Descripción breve...', 'cv_url' => '#'];
+    }
 
-    // 2. Habilidades
-    $stmtHab = $conexion->query("SELECT * FROM habilidades");
-    $habilidades = $stmtHab->fetchAll();
+    // Obtener Habilidades
+    $stmtHab = $conexion->query("SELECT * FROM habilidades ORDER BY id DESC");
+    $habilidades = $stmtHab->fetchAll(PDO::FETCH_ASSOC);
 
-    // 3. Tecnologías
-    $stmtTech = $conexion->query("SELECT * FROM tecnologias");
-    $tecnologias = $stmtTech->fetchAll();
+    // Obtener Tecnologías
+    $stmtTech = $conexion->query("SELECT * FROM tecnologias ORDER BY porcentaje DESC");
+    $tecnologias = $stmtTech->fetchAll(PDO::FETCH_ASSOC);
 
-    // 4. Proyectos
-    $stmtProj = $conexion->query("SELECT * FROM proyectos");
-    $proyectos = $stmtProj->fetchAll();
+    // Obtener Proyectos
+    $stmtProy = $conexion->query("SELECT * FROM proyectos ORDER BY id DESC");
+    $proyectos = $stmtProy->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
-    die("Error crítico de rendimiento. No se pudieron cargar los componentes del portafolio.");
+    die("Error de conexión: " . $e->getMessage());
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio Profesional | <?php echo htmlspecialchars($biografia['nombre_completo'] ?? 'Tu Nombre'); ?></title>
+    <title><?php echo htmlspecialchars($bio['nombre_completo']); ?> | Portafolio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* Estilos globales y consistencia con el Wireframe */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; }
-        .hero-section { background-color: #ffffff; padding: 70px 0; border-bottom: 1px solid #e9ecef; }
-        .avatar-placeholder { width: 240px; height: 240px; background-color: #dee2e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 4px solid #fff; }
-        .avatar-placeholder i { font-size: 7rem; color: #adb5bd; }
-        .section-padding { padding: 80px 0; background-color: #ffffff; border-bottom: 1px solid #e9ecef;}
-        .bg-light-gray { background-color: #f8f9fa; }
-        .skill-card { border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; transition: all 0.3s ease; background: #fff;}
-        .skill-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .skill-icon { font-size: 2.8rem; }
-        .progress { height: 12px; margin-bottom: 18px; border-radius: 10px; background-color: #e9ecef;}
-        .card-img-top { height: 210px; object-fit: cover; background-color: #e9ecef; }
-        footer { background-color: #ffffff; border-top: 1px solid #e9ecef; padding: 40px 0; }
-        html { scroll-behavior: smooth; }
+        body { background-color: #f8f9fa; }
+        .hero-section { padding: 80px 0; background: #ffffff; border-bottom: 1px solid #eee; }
+        .hero-img { width: 250px; height: 250px; object-fit: cover; border-radius: 50%; background-color: #e9ecef; }
+        .section-title { font-weight: bold; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        .skill-card { text-align: center; padding: 20px; background: white; border-radius: 10px; border: 1px solid #eee; transition: 0.3s; }
+        .skill-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .skill-icon { font-size: 3rem; margin-bottom: 15px; color: #0d6efd; }
+        .project-card { border: none; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .project-img { height: 200px; object-fit: cover; background: #e9ecef; display: flex; align-items: center; justify-content: center;}
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <div class="me-2 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                    <i class="fa-solid fa-code"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0 fw-bold"><?php echo htmlspecialchars($biografia['nombre_completo'] ?? 'Mi Portafolio'); ?></h6>
-                    <small class="text-muted" style="font-size: 11px;">Egresado / Estudiante</small>
-                </div>
+            <a class="navbar-brand fw-bold" href="#">
+                <?php echo htmlspecialchars($bio['nombre_completo']); ?><br>
+                <small class="fw-normal" style="font-size: 12px;"><?php echo htmlspecialchars($bio['titulo_profesional']); ?></small>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link px-3" href="#biografia"><i class="fa-regular fa-user me-1"></i> Biografía</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#habilidades"><i class="fa-regular fa-star me-1"></i> Habilidades</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#proyectos"><i class="fa-solid fa-briefcase me-1"></i> Proyectos</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#contacto"><i class="fa-regular fa-envelope me-1"></i> Contacto</a></li>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#biografia"><i class="fa-regular fa-user me-1"></i> Biografía</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#habilidades"><i class="fa-regular fa-star me-1"></i> Habilidades</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#proyectos"><i class="fa-solid fa-briefcase me-1"></i> Proyectos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contacto"><i class="fa-regular fa-envelope me-1"></i> Contacto</a></li>
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0"><a class="btn btn-outline-light btn-sm rounded-pill px-3" href="login.php"><i class="fa-solid fa-right-to-bracket me-1"></i> Iniciar Sesión</a></li>
                 </ul>
-                <a href="login.php" class="btn btn-outline-primary rounded-pill px-4 shadow-sm"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Dashboard Admin</a>
             </div>
         </div>
     </nav>
@@ -118,175 +109,148 @@ try {
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <div class="avatar-placeholder shadow-sm">
-                        <i class="fa-solid fa-user-tie"></i>
+                    <div class="hero-img mx-auto d-flex align-items-center justify-content-center text-muted">
+                        <i class="fa-solid fa-user fa-5x"></i>
                     </div>
                 </div>
-                <div class="col-md-8">
-                    <p class="text-primary fw-bold mb-1 tracking-wider">HOLA, MI PERFIL PROFESIONAL</p>
-                    <h1 class="fw-bold display-5 mb-2"><?php echo htmlspecialchars($biografia['nombre_completo'] ?? 'Tu Nombre Completo'); ?></h1>
-                    <h4 class="text-primary mb-4 fw-normal"><?php echo htmlspecialchars($biografia['titulo_profesional'] ?? 'Título Profesional / Técnico'); ?></h4>
-                    <p class="text-muted lead mb-4" style="font-size: 16px; line-height: 1.7;"><?php echo htmlspecialchars($biografia['descripcion'] ?? 'Descripción del desarrollador...'); ?></p>
-                    <div class="d-flex align-items-center gap-3">
-                        <?php if (!empty($biografia['cv_url'])): ?>
-                            <a href="<?php echo htmlspecialchars($biografia['cv_url']); ?>" target="_blank" class="btn btn-primary btn-lg rounded-pill px-4 shadow"><i class="fa-solid fa-download me-2"></i> Descargar CV</a>
-                        <?php else: ?>
-                            <a href="#contacto" class="btn btn-primary btn-lg rounded-pill px-4 shadow"><i class="fa-regular fa-paper-plane me-2"></i> Contáctame</a>
-                        <?php endif; ?>
-                        <a href="https://github.com" target="_blank" class="text-dark fs-3"><i class="fa-brands fa-github"></i></a>
-                        <a href="https://linkedin.com" target="_blank" class="text-primary fs-3"><i class="fa-brands fa-linkedin"></i></a>
-                    </div>
+                <div class="col-md-8 text-center text-md-start">
+                    <h5 class="text-primary fw-bold mb-1">HOLA, SOY</h5>
+                    <h1 class="display-4 fw-bold text-dark mb-2"><?php echo htmlspecialchars($bio['nombre_completo']); ?></h1>
+                    <h4 class="text-secondary mb-4"><?php echo htmlspecialchars($bio['titulo_profesional']); ?></h4>
+                    <p class="lead text-muted mb-4" style="font-size: 1.1rem; white-space: pre-line;">
+                        <?php echo htmlspecialchars($bio['descripcion']); ?>
+                    </p>
+                    
+                    <?php if(!empty($bio['cv_url'])): ?>
+                        <a href="<?php echo htmlspecialchars($bio['cv_url']); ?>" target="_blank" class="btn btn-primary rounded-pill px-4 py-2 me-2">
+                            <i class="fa-solid fa-download me-2"></i> Descargar CV
+                        </a>
+                    <?php endif; ?>
+                    
+                    <a href="https://github.com" target="_blank" class="btn btn-outline-dark rounded-circle me-2"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://linkedin.com" target="_blank" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="habilidades" class="section-padding bg-light-gray">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 mb-5 mb-md-0 pe-md-4">
-                    <h4 class="mb-4 fw-bold text-dark"><i class="fa-regular fa-star text-primary me-2"></i> Habilidades y Herramientas</h4>
-                    <div class="row g-3 text-center">
-                        <?php if (!empty($habilidades)): ?>
-                            <?php foreach ($habilidades as $hab): ?>
-                                <div class="col-6 col-sm-4">
-                                    <div class="skill-card shadow-sm">
-                                        <i class="<?php echo htmlspecialchars($hab['icono_clase'] ?? 'fa-solid fa-square-code'); ?> skill-icon text-primary"></i>
-                                        <h6 class="mb-0 mt-2 fw-bold text-secondary" style="font-size: 14px;"><?php echo htmlspecialchars($hab['nombre']); ?></h6>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="col-6 col-sm-4"><div class="skill-card shadow-sm"><i class="fa-brands fa-html5 skill-icon text-danger"></i><h6 class="mb-0 mt-2">HTML5</h6></div></div>
-                            <div class="col-6 col-sm-4"><div class="skill-card shadow-sm"><i class="fa-brands fa-css3-alt skill-icon text-primary"></i><h6 class="mb-0 mt-2">CSS3</h6></div></div>
-                            <div class="col-6 col-sm-4"><div class="skill-card shadow-sm"><i class="fa-brands fa-js skill-icon text-warning"></i><h6 class="mb-0 mt-2">JavaScript</h6></div></div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 ps-md-4">
-                    <h4 class="mb-4 fw-bold text-dark"><i class="fa-solid fa-code text-primary me-2"></i> Tecnologías Dominadas</h4>
-                    <?php if (!empty($tecnologias)): ?>
-                        <?php foreach ($tecnologias as $tech): ?>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span class="fw-bold text-secondary"><?php echo htmlspecialchars($tech['nombre']); ?></span>
-                                    <span class="text-muted fw-bold"><?php echo htmlspecialchars($tech['porcentaje']); ?>%</span>
-                                </div>
-                                <div class="progress shadow-sm">
-                                    <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: <?php echo htmlspecialchars($tech['porcentaje']); ?>%;"></div>
+    <div class="container py-5">
+        <div class="row" id="habilidades">
+            <div class="col-lg-6 mb-5">
+                <h3 class="section-title"><i class="fa-regular fa-star text-primary"></i> Habilidades y Herramientas</h3>
+                <div class="row g-3">
+                    <?php if(!empty($habilidades)): ?>
+                        <?php foreach($habilidades as $hab): ?>
+                            <div class="col-6 col-md-4">
+                                <div class="skill-card h-100">
+                                    <i class="<?php echo htmlspecialchars($hab['icono_clase']); ?> skill-icon"></i>
+                                    <h6 class="fw-bold mb-0 text-dark"><?php echo htmlspecialchars($hab['nombre']); ?></h6>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between"><span class="fw-bold text-secondary">Desarrollo Backend (PHP)</span><span class="text-muted fw-bold">80%</span></div>
-                            <div class="progress"><div class="progress-bar bg-primary" style="width: 80%;"></div></div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between"><span class="fw-bold text-secondary">Bases de Datos (MySQL)</span><span class="text-muted fw-bold">75%</span></div>
-                            <div class="progress"><div class="progress-bar bg-primary" style="width: 75%;"></div></div>
-                        </div>
+                        <p class="text-muted">Aún no hay habilidades registradas.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-5">
+                <h3 class="section-title"><i class="fa-solid fa-code text-primary"></i> Tecnologías Dominadas</h3>
+                <div class="card border-0 bg-white p-4 shadow-sm" style="border-radius: 10px;">
+                    <?php if(!empty($tecnologias)): ?>
+                        <?php foreach($tecnologias as $tech): ?>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold small"><?php echo htmlspecialchars($tech['nombre']); ?></span>
+                                    <span class="text-muted small"><?php echo htmlspecialchars($tech['porcentaje']); ?>%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo htmlspecialchars($tech['porcentaje']); ?>%;"></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted">Aún no hay tecnologías registradas.</p>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-    </section>
 
-    <section id="proyectos" class="section-padding">
-        <div class="container">
-            <h4 class="mb-4 fw-bold text-dark"><i class="fa-solid fa-briefcase text-primary me-2"></i> Proyectos Realizados</h4>
-            <div class="row g-4">
-                <?php if (!empty($proyectos)): ?>
-                    <?php foreach ($proyectos as $proy): ?>
-                        <div class="col-md-4">
-                            <div class="card h-100 shadow-sm border-0 bg-white">
-                                <?php if(!empty($proy['imagen_url'])): ?>
-                                    <img src="<?php echo htmlspecialchars($proy['imagen_url']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($proy['titulo']); ?>">
-                                <?php else: ?>
-                                    <div class="card-img-top d-flex align-items-center justify-content-center text-muted">
-                                        <i class="fa-regular fa-image fa-3x"></i>
-                                    </div>
-                                <?php endif; ?>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title text-primary fw-bold"><?php echo htmlspecialchars($proy['titulo']); ?></h5>
-                                    <p class="card-text text-muted mb-4" style="font-size: 13.5px; line-height: 1.6;"><?php echo htmlspecialchars($proy['descripcion']); ?></p>
-                                    <div class="mt-auto d-flex justify-content-between">
-                                        <?php if(!empty($proy['link_demo'])): ?>
-                                            <a href="<?php echo htmlspecialchars($proy['link_demo']); ?>" target="_blank" class="btn btn-primary rounded-pill px-3 shadow-sm btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Demo</a>
-                                        <?php endif; ?>
-                                        <?php if(!empty($proy['link_github'])): ?>
-                                            <a href="<?php echo htmlspecialchars($proy['link_github']); ?>" target="_blank" class="btn btn-outline-dark rounded-pill px-3 btn-sm"><i class="fa-brands fa-github me-1"></i> GitHub</a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-md-4">
-                        <div class="card h-100 shadow-sm border-0">
-                            <div class="card-img-top d-flex align-items-center justify-content-center text-muted"><i class="fa-regular fa-image fa-2x"></i></div>
+        <div class="row mb-5" id="proyectos">
+            <div class="col-12">
+                <h3 class="section-title"><i class="fa-solid fa-briefcase text-primary"></i> Proyectos Realizados</h3>
+            </div>
+            <?php if(!empty($proyectos)): ?>
+                <?php foreach($proyectos as $proy): ?>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card project-card h-100">
+                            <?php if(!empty($proy['imagen_url'])): ?>
+                                <img src="<?php echo htmlspecialchars($proy['imagen_url']); ?>" class="project-img card-img-top" alt="Proyecto">
+                            <?php else: ?>
+                                <div class="project-img card-img-top text-muted"><i class="fa-regular fa-image fa-3x"></i></div>
+                            <?php endif; ?>
                             <div class="card-body">
-                                <h5 class="card-title text-primary fw-bold">Sistema E-Commerce</h5>
-                                <p class="card-text text-muted" style="font-size: 13px;">Proyecto de tienda en línea integrado con bases de datos dinámicas.</p>
+                                <h5 class="card-title fw-bold text-primary"><?php echo htmlspecialchars($proy['titulo']); ?></h5>
+                                <p class="card-text text-muted small"><?php echo htmlspecialchars($proy['descripcion']); ?></p>
+                            </div>
+                            <div class="card-footer bg-white border-0 pb-3 pt-0 d-flex gap-2">
+                                <?php if(!empty($proy['link_demo'])): ?>
+                                    <a href="<?php echo htmlspecialchars($proy['link_demo']); ?>" target="_blank" class="btn btn-primary btn-sm rounded-pill flex-grow-1">Ver Demo <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
+                                <?php endif; ?>
+                                <?php if(!empty($proy['link_github'])): ?>
+                                    <a href="<?php echo htmlspecialchars($proy['link_github']); ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1">GitHub <i class="fa-brands fa-github ms-1"></i></a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
-                <?php endif; ?>
-            </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12"><p class="text-muted">Aún no hay proyectos publicados.</p></div>
+            <?php endif; ?>
         </div>
-    </section>
 
-    <section id="contacto" class="section-padding bg-light-gray">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <?php echo $mensaje_estado; ?>
+        <div class="row justify-content-center" id="contacto">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+                    <h4 class="fw-bold mb-4 text-center"><i class="fa-regular fa-envelope text-primary me-2"></i> Formulario de Contacto</h4>
                     
-                    <div class="card shadow border-0 p-4 p-md-5 bg-white rounded-4">
-                        <h4 class="mb-4 fw-bold text-center text-dark"><i class="fa-regular fa-envelope text-primary me-2"></i> Formulario de Contacto</h4>
-                        <form action="index.php#contacto" method="POST">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label small fw-bold text-secondary">Nombre Completo</label>
-                                    <input type="text" name="nombre" class="form-control bg-light border-0 py-2 px-3" placeholder="Ej: Juan Pérez" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label small fw-bold text-secondary">Correo Electrónico</label>
-                                    <input type="email" name="correo" class="form-control bg-light border-0 py-2 px-3" placeholder="juan@correo.com" required>
-                                </div>
+                    <?php echo $alerta_contacto; ?>
+
+                    <form action="index.php#contacto" method="POST">
+                        <input type="hidden" name="enviar_mensaje" value="1">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="nombre" class="form-control bg-light border-0 py-2" placeholder="Nombre Completo" required>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold text-secondary">Asunto del Mensaje</label>
-                                <input type="text" name="asunto" class="form-control bg-light border-0 py-2 px-3" placeholder="Ej: Propuesta de Proyecto" required>
+                            <div class="col-md-6 mb-3">
+                                <input type="email" name="correo" class="form-control bg-light border-0 py-2" placeholder="Correo Electrónico" required>
                             </div>
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-secondary">Mensaje o Comentarios</label>
-                                <textarea name="mensaje" class="form-control bg-light border-0 py-2 px-3" rows="4" placeholder="Escribe tu mensaje detallado aquí..." required></textarea>
-                            </div>
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow"><i class="fa-regular fa-paper-plane me-2"></i> Enviar Mensaje</button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" name="asunto" class="form-control bg-light border-0 py-2" placeholder="Asunto" required>
+                        </div>
+                        <div class="mb-4">
+                            <textarea name="mensaje" class="form-control bg-light border-0 py-2" rows="4" placeholder="Mensaje" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">
+                            Enviar Mensaje <i class="fa-solid fa-paper-plane ms-1"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <footer>
-        <div class="container text-center text-md-start">
-            <div class="row align-items-center">
-                <div class="col-md-4 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start gap-3 fs-4">
-                    <a href="https://github.com" target="_blank" class="text-dark"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://linkedin.com" target="_blank" class="text-primary"><i class="fa-brands fa-linkedin"></i></a>
-                </div>
-                <div class="col-md-8 text-center text-md-end text-muted">
-                    <p class="mb-1 fw-bold">&copy; 2026 Portafolio Profesional.</p>
-                    <small>Diseñado en conformidad con las directrices y rúbricas de la evaluación institucional.</small>
-                </div>
+    <footer class="bg-white border-top py-4 mt-5 text-center">
+        <div class="container">
+            <div class="d-flex justify-content-center gap-3 mb-3">
+                <a href="#" class="text-dark fs-4"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="text-dark fs-4"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="mailto:correo@ejemplo.com" class="text-dark fs-4"><i class="fa-regular fa-envelope"></i></a>
             </div>
+            <p class="text-muted small mb-0 fw-bold">Pie de página con las redes sociales y correo del desarrollador</p>
+            <p class="text-muted small mb-2">Horario de atención y en el caso de tener marca personal se debe incorporar el logo.</p>
+            <p class="fw-bold text-dark mb-0">&copy; 2026 MiMarca</p>
         </div>
     </footer>
 
