@@ -41,7 +41,6 @@ try {
     $stmtBio = $conexion->query("SELECT * FROM biografia LIMIT 1");
     $bio = $stmtBio->fetch(PDO::FETCH_ASSOC);
     if (!$bio) {
-        // Valores por defecto si la base de datos está vacía
         $bio = ['nombre_completo' => 'Tu Nombre', 'titulo_profesional' => 'Desarrollador Web', 'descripcion' => 'Descripción breve...', 'cv_url' => '#'];
     }
 
@@ -72,11 +71,11 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=1.3">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
                 <?php echo htmlspecialchars($bio['nombre_completo']); ?><br>
@@ -97,19 +96,19 @@ try {
         </div>
     </nav>
 
-    <section id="biografia" class="hero-section">
+    <section id="biografia" class="hero-section py-5 bg-white border-bottom">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <div class="hero-img mx-auto d-flex align-items-center justify-content-center text-muted">
-                        <i class="fa-solid fa-user fa-5x"></i>
+                    <div class="hero-img-wrapper mx-auto d-flex align-items-center justify-content-center bg-light text-muted rounded-circle" style="width: 150px; height: 150px;">
+                        <i class="fa-solid fa-user fa-5x text-secondary"></i>
                     </div>
                 </div>
                 <div class="col-md-8 text-center text-md-start">
                     <h5 class="text-primary fw-bold mb-1">HOLA, SOY</h5>
-                    <h1 class="display-4 fw-bold text-dark mb-2"><?php echo htmlspecialchars($bio['nombre_completo']); ?></h1>
-                    <h4 class="text-secondary mb-4"><?php echo htmlspecialchars($bio['titulo_profesional']); ?></h4>
-                    <p class="lead text-muted mb-4" style="font-size: 1.1rem; white-space: pre-line;">
+                    <h1 class="display-5 fw-bold text-dark mb-2"><?php echo htmlspecialchars($bio['nombre_completo']); ?></h1>
+                    <h4 class="text-secondary mb-4" style="font-weight: 500;"><?php echo htmlspecialchars($bio['titulo_profesional']); ?></h4>
+                    <p class="lead text-muted mb-4" style="font-size: 1.05rem; white-space: pre-line;">
                         <?php echo htmlspecialchars($bio['descripcion']); ?>
                     </p>
                     
@@ -119,45 +118,45 @@ try {
                         </a>
                     <?php endif; ?>
                     
-                    <a href="https://github.com" target="_blank" class="btn btn-outline-dark rounded-circle me-2"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://github.com/Diego-Catalan-cmd" target="_blank" class="btn btn-outline-dark rounded-circle me-2"><i class="fa-brands fa-github"></i></a>
                     <a href="https://linkedin.com" target="_blank" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="container py-5">
+    <div class="container py-2">
         <div class="row" id="habilidades">
             <div class="col-lg-6 mb-5">
-                <h3 class="section-title"><i class="fa-regular fa-star text-primary"></i> Habilidades y Herramientas</h3>
+                <h3 class="section-title fw-bold mb-4"><i class="fa-regular fa-star text-primary me-2"></i>Habilidades y Herramientas</h3>
                 <div class="row g-3">
                     <?php if(!empty($habilidades)): ?>
                         <?php foreach($habilidades as $hab): ?>
                             <div class="col-6 col-md-4">
                                 <div class="skill-card h-100">
                                     <i class="<?php echo htmlspecialchars($hab['icono_clase']); ?> skill-icon"></i>
-                                    <h6 class="fw-bold mb-0 text-dark"><?php echo htmlspecialchars($hab['nombre']); ?></h6>
+                                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;"><?php echo htmlspecialchars($hab['nombre']); ?></h6>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-muted">Aún no hay habilidades registradas.</p>
+                        <div class="col-12"><p class="text-muted">Aún no hay habilidades registradas.</p></div>
                     <?php endif; ?>
                 </div>
             </div>
 
             <div class="col-lg-6 mb-5">
-                <h3 class="section-title"><i class="fa-solid fa-code text-primary"></i> Tecnologías Dominadas</h3>
-                <div class="card border-0 bg-white p-4 shadow-sm" style="border-radius: 10px;">
+                <h3 class="section-title fw-bold mb-4"><i class="fa-solid fa-code text-primary me-2"></i>Tecnologías Dominadas</h3>
+                <div class="card border-0 bg-white p-4 shadow-sm" style="border-radius: 12px; border: 1px solid #e2e8f0 !important;">
                     <?php if(!empty($tecnologias)): ?>
                         <?php foreach($tecnologias as $tech): ?>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="fw-bold small"><?php echo htmlspecialchars($tech['nombre']); ?></span>
-                                    <span class="text-muted small"><?php echo htmlspecialchars($tech['porcentaje']); ?>%</span>
+                                    <span class="text-muted small fw-bold"><?php echo htmlspecialchars($tech['porcentaje']); ?>%</span>
                                 </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo htmlspecialchars($tech['porcentaje']); ?>%;"></div>
+                                <div class="progress" style="height: 8px; background-color: #f1f5f9;">
+                                    <div class="progress-bar bg-primary rounded-pill" role="progressbar" style="width: <?php echo htmlspecialchars($tech['porcentaje']); ?>%;"></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -169,29 +168,31 @@ try {
         </div>
 
         <div class="row mb-5" id="proyectos">
-            <div class="col-12">
-                <h3 class="section-title"><i class="fa-solid fa-briefcase text-primary"></i> Proyectos Realizados</h3>
+            <div class="col-12 mb-4">
+                <h3 class="section-title fw-bold"><i class="fa-solid fa-briefcase text-primary me-2"></i>Proyectos Realizados</h3>
             </div>
             <?php if(!empty($proyectos)): ?>
                 <?php foreach($proyectos as $proy): ?>
                     <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card project-card h-100">
+                        <div class="card project-card">
                             <?php if(!empty($proy['imagen_url'])): ?>
                                 <img src="<?php echo htmlspecialchars($proy['imagen_url']); ?>" class="project-img card-img-top" alt="Proyecto">
                             <?php else: ?>
-                                <div class="project-img card-img-top text-muted"><i class="fa-regular fa-image fa-3x"></i></div>
+                                <div class="project-img card-img-top text-muted d-flex align-items-center justify-content-center"><i class="fa-regular fa-image fa-3x"></i></div>
                             <?php endif; ?>
                             <div class="card-body">
-                                <h5 class="card-title fw-bold text-primary"><?php echo htmlspecialchars($proy['titulo']); ?></h5>
+                                <h5 class="card-title fw-bold text-dark mb-2" style="font-size: 1.15rem;"><?php echo htmlspecialchars($proy['titulo']); ?></h5>
                                 <p class="card-text text-muted small"><?php echo htmlspecialchars($proy['descripcion']); ?></p>
                             </div>
-                            <div class="card-footer bg-white border-0 pb-3 pt-0 d-flex gap-2">
-                                <?php if(!empty($proy['link_demo'])): ?>
-                                    <a href="<?php echo htmlspecialchars($proy['link_demo']); ?>" target="_blank" class="btn btn-primary btn-sm rounded-pill flex-grow-1">Ver Demo <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
-                                <?php endif; ?>
-                                <?php if(!empty($proy['link_github'])): ?>
-                                    <a href="<?php echo htmlspecialchars($proy['link_github']); ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1">GitHub <i class="fa-brands fa-github ms-1"></i></a>
-                                <?php endif; ?>
+                            <div class="card-footer bg-white border-0">
+                                <div class="d-flex gap-2">
+                                    <?php if(!empty($proy['link_demo'])): ?>
+                                        <a href="<?php echo htmlspecialchars($proy['link_demo']); ?>" target="_blank" class="btn btn-primary btn-sm rounded-pill flex-grow-1 py-2">Demo <i class="fa-solid fa-arrow-up-right-from-square ms-1" style="font-size: 11px;"></i></a>
+                                    <?php endif; ?>
+                                    <?php if(!empty($proy['link_github'])): ?>
+                                        <a href="<?php echo htmlspecialchars($proy['link_github']); ?>" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill flex-grow-1 py-2">GitHub <i class="fa-brands fa-github ms-1"></i></a>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -201,9 +202,9 @@ try {
             <?php endif; ?>
         </div>
 
-        <div class="row justify-content-center" id="contacto">
+        <div class="row justify-content-center py-4" id="contacto">
             <div class="col-md-8 col-lg-6">
-                <div class="card border-0 shadow-sm p-4" style="border-radius: 15px;">
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 15px; background: #ffffff; border: 1px solid #e2e8f0 !important;">
                     <h4 class="fw-bold mb-4 text-center"><i class="fa-regular fa-envelope text-primary me-2"></i> Formulario de Contacto</h4>
                     
                     <?php echo $alerta_contacto; ?>
@@ -236,18 +237,17 @@ try {
     <footer class="bg-white border-top py-4 mt-5 text-center">
         <div class="container">
             <div class="d-flex justify-content-center gap-3 mb-3">
-                <a href="#" class="text-dark fs-4"><i class="fa-brands fa-github"></i></a>
+                <a href="https://github.com/Diego-Catalan-cmd" class="text-dark fs-4"><i class="fa-brands fa-github"></i></a>
                 <a href="#" class="text-dark fs-4"><i class="fa-brands fa-linkedin"></i></a>
                 <a href="mailto:correo@ejemplo.com" class="text-dark fs-4"><i class="fa-regular fa-envelope"></i></a>
             </div>
-            <p class="text-muted small mb-0 fw-bold">Pie de página con las redes sociales y correo del desarrollador</p>
-            <p class="text-muted small mb-2">Horario de atención y en el caso de tener marca personal se debe incorporar el logo.</p>
-            <p class="fw-bold text-dark mb-0">&copy; <?php echo date("Y"); ?> MiMarca</p>
+            <p class="text-muted small mb-1 fw-bold">Diego Christofer Catalán | Portafolio Profesional</p>
+            <p class="text-muted small mb-2">Desarrollo Seguro, Programación Dinámica & Ciberseguridad.</p>
+            <p class="fw-bold text-dark mb-0">&copy; <?php echo date("Y"); ?> Teclab UCT</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script src="assets/js/main.js"></script>
 </body>
 </html>

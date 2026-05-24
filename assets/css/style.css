@@ -1,178 +1,155 @@
-/* ==========================================
-   VARIABLES GLOBALES
-   ========================================== */
-:root {
-    --primary-color: #0d6efd;
-    --secondary-color: #6c757d;
-    --bg-light: #f8f9fa;
-    --text-dark: #212529;
-    --transition-speed: 0.3s;
+/* ==========================================================================
+   1. VARIABLES, CONFIGURACIÓN BASE Y RESET
+   ========================================================================== */
+html {
+    scroll-behavior: smooth;
+    /* Crea un espacio superior para que el Navbar fijo no tape los títulos al hacer scroll */
+    scroll-padding-top: 90px; 
 }
 
-/* ==========================================
-   ESTILOS GENERALES
-   ========================================== */
 body {
-    background-color: var(--bg-light);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: var(--text-dark);
-    /* Desplazamiento suave al hacer clic en el menú */
-    scroll-behavior: smooth; 
+    background-color: #f8fafc !important;
+    color: #1e293b;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* ==========================================
-   BARRA DE NAVEGACIÓN (NAVBAR)
-   ========================================== */
+/* ==========================================================================
+   2. BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================================================== */
 .navbar {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1030 !important; /* Asegura que el menú quede siempre en una capa al frente */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
 }
 
-.navbar-brand {
-    line-height: 1.2;
+/* ==========================================================================
+   3. SECCIÓN BIOGRAFÍA (HERO SECTION)
+   ========================================================================== */
+#biografia {
+    position: relative;
+    z-index: 1;
 }
 
-/* ==========================================
-   SECCIÓN HERO / BIOGRAFÍA
-   ========================================== */
-.hero-section {
-    padding: 100px 0;
-    background: #ffffff;
-    border-bottom: 1px solid #eee;
+.hero-img-wrapper {
+    border: 4px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
-.hero-img {
-    width: 280px;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 50%;
-    background-color: #e9ecef;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    border: 5px solid white;
-    transition: transform var(--transition-speed);
-}
-
-/* Efecto al pasar el cursor sobre tu foto */
-.hero-img:hover {
-    transform: scale(1.03);
+/* ==========================================================================
+   4. CUADRÍCULA DE HABILIDADES Y HERRAMIENTAS
+   ========================================================================== */
+#habilidades {
+    position: relative;
+    z-index: 1;
 }
 
 .section-title {
-    font-weight: 800;
-    margin-bottom: 40px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--text-dark);
-    text-transform: uppercase;
-    font-size: 1.5rem;
-    letter-spacing: 1px;
+    font-size: 1.4rem !important;
+    color: #1e293b !important;
+    letter-spacing: -0.5px;
 }
 
-/* ==========================================
-   TARJETAS DE HABILIDADES (ICONOS)
-   ========================================== */
 .skill-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 24px 16px !important;
     text-align: center;
-    padding: 25px 20px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: all var(--transition-speed) ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important;
+    transition: all 0.25s ease-in-out !important;
 }
 
-/* Efecto de elevación al hacer hover */
 .skill-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 20px rgba(13, 110, 253, 0.1);
-    border-color: rgba(13, 110, 253, 0.2);
+    border-color: #0d6efd !important;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(13, 110, 253, 0.05), 0 4px 6px -2px rgba(13, 110, 253, 0.05) !important;
 }
 
 .skill-icon {
-    font-size: 3.5rem;
-    margin-bottom: 15px;
-    color: var(--primary-color);
-    transition: transform var(--transition-speed);
+    font-size: 2.2rem !important;
+    color: #0d6efd !important; /* Azul unificado e institucional */
+    margin-bottom: 12px !important;
+    display: block;
 }
 
-.skill-card:hover .skill-icon {
-    transform: scale(1.1);
+/* ==========================================================================
+   5. ALINEACIÓN MAESTRA Y SIMETRÍA DE PROYECTOS
+   ========================================================================== */
+#proyectos {
+    position: relative;
+    z-index: 1;
 }
 
-/* ==========================================
-   TARJETAS DE PROYECTOS
-   ========================================== */
 .project-card {
-    border: none;
-    border-radius: 12px;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important; /* Obliga a todas las tarjetas de la misma fila a medir lo mismo */
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transition: all var(--transition-speed) ease;
-    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
 }
 
 .project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.06) !important;
 }
 
 .project-img {
-    height: 220px;
-    object-fit: cover;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    width: 100%;
+    height: 200px !important;
+    object-fit: cover !important; /* Recorta la imagen proporcionalmente sin deformarla */
+    background-color: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-/* ==========================================
-   BARRAS DE PROGRESO (TECNOLOGÍAS)
-   ========================================== */
-.progress {
-    background-color: #e9ecef;
-    border-radius: 50rem;
+/* Contenedor interno del texto del proyecto */
+.project-card .card-body {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important; /* Absorbe dinámicamente los renglones vacíos si un texto es más corto */
+    padding: 24px !important;
 }
 
-.progress-bar {
-    border-radius: 50rem;
+.project-card .card-title {
+    color: #1e293b !important;
+    font-size: 1.2rem !important;
+}
+
+.project-card .card-text {
+    flex-grow: 1 !important; /* Empuja el bloque del footer hacia el fondo equitativamente */
+    color: #64748b !important;
+    font-size: 0.92rem !important;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Bloque inferior de botones de acción */
+.project-card .card-footer {
+    margin-top: auto !important; /* Clava los botones al ras inferior de la tarjeta */
+    background: transparent !important;
+    padding: 0 24px 24px 24px !important;
+    border-top: none !important;
+}
+
+/* ==========================================================================
+   6. SECCIÓN CONTACTO Y FORMULARIOS
+   ========================================================================== */
+#contacto {
     position: relative;
-    /* Animación de carga para las barras */
-    animation: animateProgress 1.5s ease-in-out forwards;
+    z-index: 1;
 }
 
-@keyframes animateProgress {
-    from { width: 0; }
+input.form-control, 
+textarea.form-control {
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease !important;
 }
 
-/* ==========================================
-   FORMULARIO DE CONTACTO
-   ========================================== */
-.form-control {
-    border-radius: 8px;
-    padding: 12px 15px;
-    transition: all var(--transition-speed);
-}
-
-.form-control:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-    background-color: white !important;
-}
-
-/* ==========================================
-   FOOTER
-   ========================================== */
-footer {
-    background: white;
-    border-top: 1px solid #eaeaea;
-}
-
-footer a {
-    display: inline-block;
-    transition: all var(--transition-speed);
-}
-
-footer a:hover {
-    color: var(--primary-color) !important;
-    transform: scale(1.15);
+input.form-control:focus, 
+textarea.form-control:focus {
+    background-color: #ffffff !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
 }

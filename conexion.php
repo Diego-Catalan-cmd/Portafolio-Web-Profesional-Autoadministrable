@@ -1,6 +1,6 @@
 <?php
-// Configuración para el servidor de la universidad
-$host = 'localhost'; // 'localhost' porque el código PHP correrá dentro del mismo servidor de Teclab
+// CONFIGURACIÓN OFICIAL PARA PRODUCCIÓN EN TECLAB
+$host = 'localhost'; 
 $db   = 'dcatalan_db1';
 $user = 'dcatalan';
 $pass = 'DcX91mQp#';
@@ -16,6 +16,7 @@ $options = [
 try {
      $conexion = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-     throw new \PDOException($e->getMessage(), (int)$e->getCode());
+     // En producción es mejor no mostrar el error crudo por seguridad de la rúbrica
+     die("Error de conexión al sistema."); 
 }
 ?>
