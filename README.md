@@ -4,11 +4,6 @@ Este proyecto consiste en una aplicación web dinámica, moderna y completamente
 
 Desarrollado como entregable oficial para la **Evaluación N°3** de la asignatura **Diseño y Desarrollo Web + IA**.
 
----
-
-## 🚀 Proyecto en Producción
-El sistema se encuentra desplegado y plenamente operativo en el servidor institucional a través del siguiente enlace:
-👉 **[https://teclab.uct.cl/~usuario/](https://teclab.uct.cl/~usuario/)** *(Nota: Reemplazar `~usuario` con el directorio correspondiente asignado por la institución).*
 
 ---
 
